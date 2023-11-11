@@ -42,7 +42,7 @@ module.exports.createUser = (req, res, next) => {
         return next(new BAD_REQUEST('Переданы некорректные данные при создании пользователя'));
       }
       if (error.code === 11000) {
-        return next(new CONFLICT('Пользователь пытается зарегистрироваться по уже существующему в базе email'));
+        return next(new CONFLICT('Пользователь пытается использовать существующий в базе email'));
       }
       return next(error);
     });
@@ -57,6 +57,9 @@ module.exports.updateProfile = (req, res, next) => {
     .catch((error) => {
       if (error instanceof CastError) {
         return next(new BAD_REQUEST('Переданы некорректные данные при обновлении профиля'));
+      }
+      if (error.code === 11000) {
+        return next(new CONFLICT('Пользователь пытается использовать существующий в базе email'));
       }
       return next(error);
     });
