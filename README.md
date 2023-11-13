@@ -7,4 +7,4 @@
 
 ## Ссылка на бэкенд
 
-Backend https://api.diplom-c-ya-l8er.nomoredomainsrocks.ru
+Backend https://api.diplom-c-ya-l8er.nomoredomainsmonster.ru/

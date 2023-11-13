@@ -1,9 +1,14 @@
 const { ValidationError, CastError } = require('mongoose').Error;
 const Movie = require('../models/movie');
 const statusCodes = require('../utils/constants').HTTP_STATUS;
-const NOT_FOUND = require('../errors/NotFound');
-const BAD_REQUEST = require('../errors/BadRequest');
-const FORBIDDEN = require('../errors/Forbidden');
+const NOT_FOUND_ERROR = require('../errors/NotFound');
+const BAD_REQUEST_ERROR = require('../errors/BadRequest');
+const FORBIDDEN_ERROR = require('../errors/Forbidden');
+const {
+  NOT_FOUND_MESSAGE,
+  BAD_REQUEST_MESSAGE,
+  FORBIDDEN_MESSAGE,
+} = require('../utils/constants');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})
@@ -43,9 +48,7 @@ module.exports.createMovie = (req, res, next) => {
     .then((movie) => res.status(statusCodes.CREATED).send(movie))
     .catch((error) => {
       if (error instanceof ValidationError) {
-        return next(
-          new BAD_REQUEST('Переданы некорректные данные при создании фильма'),
-        );
+        return next(new BAD_REQUEST_ERROR(BAD_REQUEST_MESSAGE));
       }
       return next(error);
     });
@@ -53,16 +56,16 @@ module.exports.createMovie = (req, res, next) => {
 
 module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
-    .orFail(new NOT_FOUND('NotFound'))
+    .orFail(new NOT_FOUND_ERROR(NOT_FOUND_MESSAGE))
     .then((movie) => {
       if (movie.owner.toString() !== req.user._id) {
-        return next(new FORBIDDEN('Невозможно удалить фильм'));
+        return next(new FORBIDDEN_ERROR(FORBIDDEN_MESSAGE));
       }
       return Movie.deleteOne(movie).then(() => res.status(statusCodes.OK).send(movie));
     })
     .catch((error) => {
       if (error instanceof CastError) {
-        return next(new BAD_REQUEST('Переданы некорректные данные'));
+        return next(new BAD_REQUEST_ERROR(BAD_REQUEST_MESSAGE));
       }
       return next(error);
     });
